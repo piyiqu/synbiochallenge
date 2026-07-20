@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -7,6 +6,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
+    const { createServerClient } = await import("@supabase/ssr");
     let response = NextResponse.redirect(`${origin}${next}`);
 
     const supabase = createServerClient(

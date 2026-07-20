@@ -13,21 +13,22 @@ export default function NavBar() {
   const router = useRouter();
 
   useEffect(() => {
-    supabaseRef.current = createClient();
-    const supabase = supabaseRef.current;
+    createClient().then((supabase) => {
+      supabaseRef.current = supabase;
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user?.email ?? null);
-      setLoading(false);
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setUser(user?.email ?? null);
+        setLoading(false);
+      });
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user?.email ?? null);
+      });
+
+      return () => {
+        listener.subscription.unsubscribe();
+      };
     });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user?.email ?? null);
-    });
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
   }, []);
 
   const handleLogout = async () => {

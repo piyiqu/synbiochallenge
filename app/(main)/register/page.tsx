@@ -20,14 +20,9 @@ export default function RegisterPage() {
   const [countdown, setCountdown] = useState(0);
   const [token, setToken] = useState("");
   const [expiresAt, setExpiresAt] = useState(0);
-  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null);
 
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
-
-  useEffect(() => {
-    setSupabase(createClient());
-  }, []);
 
   useEffect(() => {
     if (countdown <= 0) return;
@@ -118,10 +113,7 @@ export default function RegisterPage() {
         return;
       }
 
-      if (!supabase) {
-        setCodeError("客户端未初始化，请刷新页面后重试");
-        return;
-      }
+      const supabase = await createClient();
 
       const { error: signUpError } = await supabase.auth.signUp({ email, password });
       if (signUpError) {
