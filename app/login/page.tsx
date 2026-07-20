@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 function LoginForm() {
@@ -10,13 +10,18 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
+  const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/dashboard";
 
+  useEffect(() => {
+    setSupabase(createClient());
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!supabase) return;
     setError("");
     setLoading(true);
 

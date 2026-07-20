@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export default function NavBar() {
   const [user, setUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabaseRef = useRef<SupabaseClient | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    supabaseRef.current = createClient();
+    const supabase = supabaseRef.current;
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user?.email ?? null);
       setLoading(false);
@@ -27,7 +31,7 @@ export default function NavBar() {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await supabaseRef.current?.auth.signOut();
     router.push("/");
     router.refresh();
   };
