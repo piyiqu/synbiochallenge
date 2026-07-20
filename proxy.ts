@@ -2,10 +2,21 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export default async function proxy(req: NextRequest) {
+  const publicPaths = ["/", "/login", "/register", "/auth/callback"];
+  const isPublicApi = req.nextUrl.pathname.startsWith("/api/auth/");
+  const isPublicPath =
+    publicPaths.includes(req.nextUrl.pathname) || isPublicApi || req.nextUrl.pathname.startsWith("/_next/");
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  if (!supabaseUrl) {
+    return NextResponse.next({ request: req });
+  }
+
   let supabaseResponse = NextResponse.next({ request: req });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
@@ -28,10 +39,6 @@ export default async function proxy(req: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const publicPaths = ["/", "/login", "/register", "/auth/callback"];
-  const isPublicApi = req.nextUrl.pathname.startsWith("/api/auth/");
-  const isPublicPath = publicPaths.includes(req.nextUrl.pathname) || isPublicApi;
 
   if (!user && !isPublicPath) {
     const redirectUrl = new URL("/login", req.url);
