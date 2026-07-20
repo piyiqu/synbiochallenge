@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import dynamic from "next/dynamic";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const NavBar = dynamic(() => import("@/components/NavBar"), { ssr: false });
 
 const geistSans = Geist({
