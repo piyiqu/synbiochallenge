@@ -1,0 +1,53 @@
+import { createServerClient } from "@supabase/ssr";
+import { type NextRequest, NextResponse } from "next/server";
+
+export default async function proxy(req: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request: req });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            req.cookies.set(name, value),
+          );
+          supabaseResponse = NextResponse.next({ request: req });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const publicPaths = ["/", "/login", "/register", "/auth/callback"];
+  const isPublicApi = req.nextUrl.pathname.startsWith("/api/auth/");
+  const isPublicPath = publicPaths.includes(req.nextUrl.pathname) || isPublicApi;
+
+  if (!user && !isPublicPath) {
+    const redirectUrl = new URL("/login", req.url);
+    redirectUrl.searchParams.set("redirect", req.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (user && (req.nextUrl.pathname === "/login" || req.nextUrl.pathname === "/register")) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  return supabaseResponse;
+}
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|public/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};
