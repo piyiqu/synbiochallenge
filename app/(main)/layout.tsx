@@ -1,5 +1,3 @@
-import NavBar from "@/components/NavBar";
-
 export const dynamic = "force-dynamic";
 
 export default function MainLayout({
@@ -9,7 +7,6 @@ export default function MainLayout({
 }>) {
   return (
     <>
-      <NavBar />
       <main className="flex-1">{children}</main>
     </>
   );
