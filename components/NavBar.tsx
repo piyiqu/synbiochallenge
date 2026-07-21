@@ -3,17 +3,23 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-import type { SupabaseClient } from "@supabase/supabase-js";
+
+async function getSupabase() {
+  const { createBrowserClient } = await import("@supabase/ssr");
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+}
 
 export default function NavBar() {
   const [user, setUser] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabaseRef = useRef<SupabaseClient | null>(null);
+  const supabaseRef = useRef<any>(null);
   const router = useRouter();
 
   useEffect(() => {
-    createClient().then((supabase) => {
+    getSupabase().then((supabase) => {
       supabaseRef.current = supabase;
 
       supabase.auth.getUser().then(({ data: { user } }) => {
@@ -21,7 +27,7 @@ export default function NavBar() {
         setLoading(false);
       });
 
-      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: listener } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
         setUser(session?.user?.email ?? null);
       });
 

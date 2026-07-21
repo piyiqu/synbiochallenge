@@ -1,4 +1,4 @@
-import NavBar from "@/components/NavBarWrapper";
+import NavBar from "@/components/NavBar";
 
 export const dynamic = "force-dynamic";
 

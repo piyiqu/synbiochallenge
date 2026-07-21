@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { createClient } from "@/utils/supabase/client";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -113,7 +112,11 @@ export default function RegisterPage() {
         return;
       }
 
-      const supabase = await createClient();
+      const { createBrowserClient } = await import("@supabase/ssr");
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      );
 
       const { error: signUpError } = await supabase.auth.signUp({ email, password });
       if (signUpError) {
