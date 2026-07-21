@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/config";
 
 export default async function proxy(req: NextRequest) {
   const publicPaths = ["/", "/login", "/register", "/auth/callback"];
@@ -8,9 +9,7 @@ export default async function proxy(req: NextRequest) {
     isPublicApi ||
     req.nextUrl.pathname.startsWith("/_next/");
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-  if (!supabaseUrl || !supabaseUrl.startsWith("http")) {
+  if (!SUPABASE_URL.startsWith("http")) {
     return NextResponse.next({ request: req });
   }
 
@@ -20,8 +19,8 @@ export default async function proxy(req: NextRequest) {
     const { createServerClient } = await import("@supabase/ssr");
 
     const supabase = createServerClient(
-      supabaseUrl,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll() {

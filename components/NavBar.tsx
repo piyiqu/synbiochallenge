@@ -3,13 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/utils/config";
 
 async function getSupabase() {
   const { createBrowserClient } = await import("@supabase/ssr");
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 export default function NavBar() {

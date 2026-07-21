@@ -1,18 +1,19 @@
 import nodemailer from "nodemailer";
+import { QQ_EMAIL, QQ_EMAIL_AUTH_CODE } from "@/utils/config";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.qq.com",
   port: 465,
   secure: true,
   auth: {
-    user: process.env.QQ_EMAIL,
-    pass: process.env.QQ_EMAIL_AUTH_CODE,
+    user: QQ_EMAIL,
+    pass: QQ_EMAIL_AUTH_CODE,
   },
 });
 
 export async function sendVerificationCode(to: string, code: string) {
   await transporter.sendMail({
-    from: `合成生物学创新赛 <${process.env.QQ_EMAIL}>`,
+    from: `合成生物学创新赛 <${QQ_EMAIL}>`,
     to,
     subject: "邮箱验证码 - 合成生物学创新赛",
     html: `
