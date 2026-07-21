@@ -1,10 +1,9 @@
 import { createHmac } from "crypto";
-import { QQ_EMAIL_AUTH_CODE } from "@/utils/config";
 
 const CODE_EXPIRY_MS = 5 * 60 * 1000;
 
 function getSecret(): string {
-  return QQ_EMAIL_AUTH_CODE;
+  return process.env.QQ_EMAIL_AUTH_CODE!;
 }
 
 function signPayload(email: string, code: string, expiresAt: number): string {
